@@ -12,6 +12,9 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:  # 新增权限配置
+      id-token: write  # 允许生成 OIDC 令牌
+      contents: read  # 读取代码的权限（默认已存在，显式声明更清晰）
     strategy:
       matrix:
         node-version: [22.x]
@@ -36,16 +39,6 @@ jobs:
     - name: Build project
       working-directory: .
       run: pnpm run build
-  
-    - name: Show build output
-      if: always()  # 正确缩进（与 name: 同级，4 个空格）
-      run: |
-          if [ -d "./dist" ]; then
-            echo "Build output:"
-            ls -R ./dist
-          else
-            echo "Build output directory './dist' does not exist."
-          fi
   
     - name: Deploy to GitHub Pages
       if: success()
