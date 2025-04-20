@@ -1,9 +1,12 @@
 <script setup lang="ts">
 import { useTheme } from '../composables/useTheme';
+import { useClickEffect } from '../composables/useClickEffect';
 import type { ThemeMode } from '../types';
 
 // 使用主题钩子
 const { themeMode, setThemeMode } = useTheme();
+// 使用点击特效钩子
+const { isEnabled, toggle } = useClickEffect();
 
 // 主题选项
 const themeOptions = [
@@ -30,6 +33,14 @@ const changeTheme = (mode: ThemeMode) => {
       >
         <span class="theme-icon">{{ option.icon }}</span>
         <span class="theme-label">{{ option.label }}</span>
+      </button>
+      <button
+        class="theme-option"
+        :class="{ active: isEnabled }"
+        @click="toggle"
+      >
+        <span class="theme-icon">✨</span>
+        <span class="theme-label">{{ isEnabled ? '关闭' : '开启' }}特效</span>
       </button>
     </div>
   </div>
