@@ -28,7 +28,7 @@ jobs:
     - name: Check pnpm installation
       run: pnpm --version
     - name: Add pnpm to PATH (if not present)
-      if: env.PATH !contains '/home/runner/.npm - global/bin'
+      if: "!contains(env.PATH, '/home/runner/.npm - global/bin')"
       run: echo "::add - path::/home/runner/.npm - global/bin"
     - name: Install dependencies
       run: pnpm install
@@ -36,3 +36,4 @@ jobs:
       run: pnpm run build --if-present
     - name: Run tests
       run: pnpm test
+    
