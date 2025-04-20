@@ -11,14 +11,11 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
     strategy:
       matrix:
         node-version: [18.x, 20.x, 22.x]
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
-
     steps:
     - uses: actions/checkout@v4
     - name: Use Node.js ${{ matrix.node-version }}
@@ -28,9 +25,14 @@ jobs:
         cache: 'pnpm'
     - name: Install pnpm
       run: npm install -g pnpm
+    - name: Check pnpm installation
+      run: pnpm --version
+    - name: Add pnpm to PATH (if not present)
+      if: env.PATH !contains '/home/runner/.npm - global/bin'
+      run: echo "::add - path::/home/runner/.npm - global/bin"
     - name: Install dependencies
       run: pnpm install
     - name: Build project
       run: pnpm run build --if-present
     - name: Run tests
-      run: pnpm test    
+      run: pnpm test
