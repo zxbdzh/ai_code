@@ -258,7 +258,7 @@ onMounted(() => {
         <div class="generator-container">
             <!-- 配置面板 -->
             <div class="config-panel">
-                <h2>AI代码生成器</h2>
+                <h2>大模型配置</h2>
 
                 <!-- AI模型选择 -->
                 <div class="form-group">
