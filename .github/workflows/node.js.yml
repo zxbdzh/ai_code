@@ -17,19 +17,41 @@ jobs:
         node-version: [22.x]
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
     steps:
-    - uses: actions/checkout@v3
-    - uses: pnpm/action-setup@v4.1.0
+    - name: Checkout code
+      uses: actions/checkout@v3
+  
+    - name: Set up pnpm
+      uses: pnpm/action-setup@v4.1.0
       with:
         version: 10.6.1
         run_install: true
-        cache: true # 启用缓存
+        cache: true
+  
+    - name: Set up Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'pnpm'
+  
     - name: Build project
       working-directory: .
       run: pnpm run build
+  
+    - name: Show build output
+      if: always()  # 正确缩进（与 name: 同级，4 个空格）
+      run: |
+          if [ -d "./dist" ]; then
+            echo "Build output:"
+            ls -R ./dist
+          else
+            echo "Build output directory './dist' does not exist."
+          fi
+  
     - name: Deploy to GitHub Pages
-      if: success() # 仅在前一个步骤成功时执行
+      if: success()
       uses: peaceiris/actions-gh-pages@v3
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: ./dist
-        publish_branch: gh-pages # 明确指定发布分支
+        publish_branch: gh-pages
+        commit_message: 'Deploy to GitHub Pages: ${{ github.sha }}'
