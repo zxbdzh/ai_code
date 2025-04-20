@@ -1,4 +1,4 @@
-var I=Object.defineProperty;var S=(r,t,e)=>t in r?I(r,t,{enumerable:!0,configurable:!0,writable:!0,value:e}):r[t]=e;var b=(r,t,e)=>S(r,typeof t!="symbol"?t+"":t,e);import{A as $}from"./index-BhgqFsAP.js";class H extends ${constructor(){super(...arguments);b(this,"baseURL","https://api.openai.com/v1")}async generateCode(e,n){var l,d,m,y;try{const o=e.apiKey||this.apiKey;if(!o)throw new Error("API密钥未提供");const f=`
+var I=Object.defineProperty;var S=(r,t,e)=>t in r?I(r,t,{enumerable:!0,configurable:!0,writable:!0,value:e}):r[t]=e;var b=(r,t,e)=>S(r,typeof t!="symbol"?t+"":t,e);import{A as $}from"./index-BGTLgquX.js";class H extends ${constructor(){super(...arguments);b(this,"baseURL","https://api.openai.com/v1")}async generateCode(e,n){var l,d,m,y;try{const o=e.apiKey||this.apiKey;if(!o)throw new Error("API密钥未提供");const f=`
         请直接生成一个完整的${e.gameType}游戏HTML文件，不需要解释代码。
         具体要求如下：
         ${e.prompt}
