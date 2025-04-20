@@ -420,12 +420,12 @@ onMounted(() => {
     }
 
     .config-panel {
-        background: var(--bg-element);
         padding: 20px;
-        border-radius: 8px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        border-radius: 18px;
+        box-shadow: 0 4px 24px 0 rgba(100,108,255,0.08), 0 1.5px 8px 0 rgba(0,0,0,0.06);
         max-width: 100%;
         overflow: hidden;
+        backdrop-filter: blur(4px);
 
         h2 {
             margin-top: 0;
@@ -551,17 +551,19 @@ onMounted(() => {
 .generate-btn {
     width: 100%;
     padding: 12px;
-    background: var(--primary-color);
+    background: linear-gradient(90deg, var(--primary-color) 0%, #a1c4fd 100%);
     color: white;
     border: none;
     border-radius: 6px;
     font-size: 16px;
     font-weight: 500;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all 0.2s, box-shadow 0.2s;
+    box-shadow: 0 2px 8px 0 rgba(var(--primary-color-rgb),0.10);
 
     &:hover {
-        opacity: 0.9;
+        opacity: 0.92;
+        box-shadow: 0 4px 16px 0 rgba(var(--primary-color-rgb),0.18);
     }
 
     &:disabled {
@@ -603,9 +605,9 @@ onMounted(() => {
 }
 
 .code-panel {
-    background: var(--bg-element);
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    background: rgba(var(--primary-color-rgb), 0.12);
+    border-radius: 18px;
+    box-shadow: 0 4px 24px 0 rgba(100,108,255,0.08), 0 1.5px 8px 0 rgba(0,0,0,0.06);
     overflow: hidden;
 
     .code-header {
