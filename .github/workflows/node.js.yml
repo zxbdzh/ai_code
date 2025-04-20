@@ -1,55 +1,53 @@
-name: Node.js CI
+# This workflow deploys a Node.js project to GitHub Pages using peaceiris/actions-gh-pages (alternative to official deploy-pages action)
+# Avoids artifact limitations (no symlinks/hard links check) by directly pushing the build directory to gh-pages branch
+
+name: Node.js CI & GitHub Pages Deploy
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]  # 推送到 main 分支触发部署
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
-    permissions:  # 仅保留合法权限
-      id-token: write  # 若无需 OIDC 令牌，可删除此行
-      contents: read   # 读取代码的权限（必需）
-      pages: write     # 部署到 Pages 的权限（官方动作必需）
+    permissions:
+      contents: write  # 必需：赋予写入权限以推送至 gh-pages 分支
     strategy:
       matrix:
-        node-version: [22.x]
+        node-version: ["22.x"]  # 使用 Node.js 22.x（LTS 版本，稳定可靠）
 
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # 拉取完整历史（可选，用于 Git 信息）
 
     - name: Set up pnpm
       uses: pnpm/action-setup@v4.1.0
       with:
-        version: 10.6.1
-        run_install: true
-        cache: true
+        version: 10.6.1  # 指定 pnpm 版本（与项目兼容）
+        cache: true       # 启用 pnpm 缓存加速
 
     - name: Set up Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v4
       with:
         node-version: ${{ matrix.node-version }}
-        cache: 'pnpm'
+        cache: "pnpm"   # 缓存 pnpm 依赖（减少重复安装）
+
+    - name: Install dependencies
+      run: pnpm install  # 使用 pnpm 安装依赖（生成纯文件，无符号链接）
 
     - name: Build project
-      working-directory: .
-      run: pnpm run build
-
-    - name: Clean up symlinks and hard links
-      run: |
-        # 删除所有符号链接（保留源文件）
-        find ./dist -type l -exec rm {} \;
-        # （可选）如果需要保留源文件，仅删除链接文件，不影响实际内容
-
-    - name: Upload deployment artifact  # 必需步骤：上传工件到 GitHub
-      uses: actions/upload-artifact@v4
-      with:
-        name: github-pages  # 固定名称，与官方部署动作匹配
-        path: ./dist        # 构建输出目录（与你的项目一致）
+      run: pnpm run build  # 执行构建命令（输出目录如 dist、build、out 等，需与 publish_dir 一致）
 
     - name: Deploy to GitHub Pages
-      if: success()
-      uses: actions/deploy-pages@v4.0.5  # 官方部署动作，自动关联同名工件
+      uses: peaceiris/actions-gh-pages@v4  # 推荐使用 v4（比 v3 更稳定）
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}  # 自动生成的令牌，无需手动创建
+        publish_dir: ./dist                       # 构建输出目录（与项目实际输出一致）
+        publish_branch: gh-pages                  # GitHub Pages 目标分支（默认值，显式声明更清晰）
+        user_name: "github-actions[bot]"           # 提交时的用户名（默认值，可选）
+        user_email: "github-actions[bot]@users.noreply.github.com"  # 提交时的邮箱（默认值，可选）
+        commit_message: "Deploy from main branch: ${{ github.sha }}"  # 提交信息（包含当前 commit SHA）
