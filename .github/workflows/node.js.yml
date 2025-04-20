@@ -2,7 +2,7 @@ name: Node.js CI & GitHub Pages Deploy
 
 on:
   push:
-    branches: ["main"]  # 推送到 main 分支触发部署
+    branches: ["main"]
   pull_request:
     branches: ["main"]
 
@@ -10,36 +10,45 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     permissions:
-      contents: write  # 赋予写入权限以推送至 gh-pages 分支
+      contents: write  # 必需：推送至 gh-pages 分支的权限
     strategy:
       matrix:
-        node-version: ["22.x"]  # 使用 Node.js 22.x（LTS 版本，稳定可靠）
+        node-version: ["22.x"]  # 使用 Node.js 22.x 稳定版
+
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4  # 检出代码到运行环境
-
-      - name: Set up pnpm
-        uses: pnpm/action-setup@v4.1.0
-        with:
-          version: 10  # 指定 pnpm 版本（与项目兼容）
+        uses: actions/checkout@v4  # 检出代码（最新版动作）
 
       - name: Set up Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v4  # 最新版 Node.js 动作
         with:
           node-version: ${{ matrix.node-version }}
+          cache: "pnpm"  # 启用 pnpm 依赖缓存
+
+      - name: Set up pnpm (关键修复：使用有效 pnpm 发行版版本)
+        uses: pnpm/action-setup@v4.1.0  # 动作版本与 pnpm 版本分离
+        with:
+          version: "8.6.2"  # 有效 pnpm 发行版版本（非动作内部版本号）
+          run_install: true  # 自动安装 pnpm 到系统 PATH（默认值，显式声明更清晰）
+
+      - name: Verify pnpm installation (调试步骤，必加！)
+        run: |
+          echo "=== pnpm 可执行文件路径 ==="
+          which pnpm  # 输出 pnpm 安装路径（应包含 /home/runner/.local/share/pnpm）
+          echo "=== pnpm 版本 ==="
+          pnpm --version  # 应输出 8.6.2 或其他有效版本号
+          echo "=== 环境变量 PATH ==="
+          echo $PATH  # 检查是否包含 pnpm 安装路径
 
       - name: Install dependencies
         run: pnpm install  # 使用 pnpm 安装项目依赖
 
       - name: Build project
-        run: pnpm run build  # 执行项目构建命令（确保输出目录与下方 publish_dir 一致）
+        run: pnpm run build  # 执行构建（确保输出目录正确）
 
       - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v4  # 使用 peaceiris 方案部署
+        uses: peaceiris/actions-gh-pages@v4  # 最新版部署动作
         with:
-          github_token: ${{ secrets.ACCESS_TOKEN }}  # GitHub 自动生成的令牌，无需手动创建
-          publish_dir: ./dist                       # 构建输出目录（根据项目实际输出修改，如 build/out 等）
-          publish_branch: gh-pages                  # GitHub Pages 部署目标分支（默认值，显式声明更清晰）
-          # user_name: "github-actions[bot]"           # 提交时的用户名（默认值，可选）
-          # user_email: "github-actions[bot]@users.noreply.github.com"  # 提交时的邮箱（默认值，可选）
-          commit_message: "Deploy from main branch: ${{ github.sha }}"  # 提交信息（包含当前 commit SHA，方便追溯）
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist  # 替换为实际构建输出目录
+          publish_branch: gh-pages    
