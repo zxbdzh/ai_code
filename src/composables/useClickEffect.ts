@@ -48,7 +48,7 @@ export function useClickEffect() {
     addBalls(e.clientX, e.clientY);
   };
 
-  const handleMouseUp = (e: MouseEvent) => {
+  const handleMouseUp = () => {
     longPressed = false;
   };
 
