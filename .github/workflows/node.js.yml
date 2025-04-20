@@ -17,16 +17,23 @@ jobs:
         node-version: [18.x, 20.x, 22.x]
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
     steps:
-    - uses: actions/checkout@v4
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v4
+    - uses: pnpm/action-setup@v4.1.0
       with:
-        node-version: ${{ matrix.node-version }}
-        cache: 'npm'
+        # Version of pnpm to install
+        version: 10.6.1 # optional
+        # Where to store pnpm files
+        # dest: # optional, default is ~/setup-pnpm
+        # If specified, run `pnpm install`
+        # run_install: # optional, default is null
+        # File path to the package.json to read "packageManager" configuration
+        # package_json_file: # optional, default is package.json
+        # When set to true, @pnpm/exe, which is a Node.js bundled package, will be installed, enabling using pnpm without Node.js.
+        # standalone: # optional, default is false
     - name: Install dependencies
-      run: npm install
+      run: pnpm install
     - name: Build project
-      run: npm run build --if-present
+      run: pnpm run build --if-present
     - name: Run tests
-      run: npm test
+      run: pnpm test
+        
     
