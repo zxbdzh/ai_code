@@ -12,47 +12,44 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    permissions:  # 新增权限配置
-      id-token: write  # 允许生成 OIDC 令牌
-      contents: read  # 读取代码的权限（默认已存在，显式声明更清晰）
+    permissions:
+      id-token: write  # 允许生成 OIDC 令牌（用于第三方动作）
+      contents: read  # 读取代码的权限
+      pages: write     # 新增：赋予 Pages 部署权限（官方动作必需）
+      artifacts: write # 新增：允许上传工件（官方动作必需）
     strategy:
       matrix:
         node-version: [22.x]
-        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+
     steps:
     - name: Checkout code
-      uses: actions/checkout@v3
-  
+      uses: actions/checkout@v4
+
     - name: Set up pnpm
       uses: pnpm/action-setup@v4.1.0
       with:
         version: 10.6.1
         run_install: true
         cache: true
-  
+
     - name: Set up Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v4
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'pnpm'
-  
+
     - name: Build project
       working-directory: .
       run: pnpm run build
-  
+
+    - name: Upload deployment artifact  # 新增：上传构建产物作为工件
+      uses: actions/upload-artifact@v4
+      with:
+        name: github-pages  # 必须与 deploy-pages 动作默认的 artifact_name 一致
+        path: ./dist        # 构建输出目录（与你的项目一致）
+        retention-days: 30  # 可选：工件保留天数
+
     - name: Deploy to GitHub Pages
       if: success()
       uses: actions/deploy-pages@v4.0.5
-      # with:
-        # GitHub token
-        # token: # default is ${{ github.token }}
-        # Time in milliseconds after which to timeout and cancel the deployment (default: 10 minutes)
-        # timeout: # optional, default is 600000
-        # Maximum number of status report errors before cancelling a deployment (default: 10)
-        # error_count: # optional, default is 10
-        # Time in milliseconds between two deployment status report (default: 5 seconds)
-        # reporting_interval: # optional, default is 5000
-        # Name of the artifact to deploy
-        # artifact_name: # optional, default is github-pages
-        # Is this attempting to deploy a pull request as a GitHub Pages preview site? (NOTE: This feature is only in alpha currently and is not available to the public!)
-        # preview: # optional, default is false
+      # 无需额外配置 token，默认使用 ${{ github.token }}（即 GITHUB_TOKEN）    
