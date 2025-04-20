@@ -1,6 +1,3 @@
-# This workflow deploys a Node.js project to GitHub Pages using the official actions/deploy-pages action
-# Requires uploading build artifacts and follows GitHub's standardized deployment流程
-
 name: Node.js CI & GitHub Pages Deploy
 
 on:
@@ -13,46 +10,38 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     permissions:
-      pages: write      # 必需：部署到 Pages 的权限
-      actions: write  # 必需：上传工件的权限
-    environment:
-      name: github-pages
+      contents: write  # 赋予写入权限以推送至 gh-pages 分支
     strategy:
       matrix:
-        node-version: ["22.x"]  # 使用 Node.js 22.x（LTS 版本）
-
+        node-version: ["22.x"]  # 使用 Node.js 22.x（LTS 版本，稳定可靠）
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 0  # 拉取完整历史（用于 Git 信息）
+      - name: Checkout code
+        uses: actions/checkout@v4  # 检出代码到运行环境
 
-    - name: Set up Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v4
-      with:
-        node-version: ${{ matrix.node-version }}
-        cache: "pnpm"   # 缓存 pnpm 依赖
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4.1.0
+        with:
+          version: 10.6.1  # 指定 pnpm 版本（与项目兼容）
+          cache: true       # 启用 pnpm 缓存，加速后续运行
 
-    - name: Set up pnpm
-      uses: pnpm/action-setup@v4.1.0
-      with:
-        version: 10.6.1  # 指定 pnpm 版本
-        cache: true       # 启用 pnpm 缓存
+      - name: Set up Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: "pnpm"   # 缓存 pnpm 依赖，减少重复安装时间
 
-    - name: Install dependencies
-      run: pnpm install  # 安装依赖
+      - name: Install dependencies
+        run: pnpm install  # 使用 pnpm 安装项目依赖
 
-    - name: Build project
-      run: pnpm run build  # 执行构建（输出到 dist 目录，需与实际项目一致）
+      - name: Build project
+        run: pnpm run build  # 执行项目构建命令（确保输出目录与下方 publish_dir 一致）
 
-    - name: Upload deployment artifact  # 必需步骤：上传构建产物到工件
-      uses: actions/upload-artifact@v4
-      with:
-        name: github-pages  # 固定名称，与 deploy-pages 动作匹配
-        path: ./dist        # 构建输出目录（确保与 build 步骤输出一致）
-        retention-days: 30  # 工件保留天数（可选）
-
-    - name: Deploy to GitHub Pages
-      id: deployment
-      uses: actions/deploy-pages@v4
-      # 无需额外配置，默认使用名为 "github-pages" 的工件和 GITHUB_TOKEN    
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4  # 使用 peaceiris 方案部署
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}  # GitHub 自动生成的令牌，无需手动创建
+          publish_dir: ./dist                       # 构建输出目录（根据项目实际输出修改，如 build/out 等）
+          publish_branch: gh-pages                  # GitHub Pages 部署目标分支（默认值，显式声明更清晰）
+          # user_name: "github-actions[bot]"           # 提交时的用户名（默认值，可选）
+          # user_email: "github-actions[bot]@users.noreply.github.com"  # 提交时的邮箱（默认值，可选）
+          commit_message: "Deploy from main branch: ${{ github.sha }}"  # 提交信息（包含当前 commit SHA，方便追溯）
