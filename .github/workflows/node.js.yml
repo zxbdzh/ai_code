@@ -49,9 +49,17 @@ jobs:
   
     - name: Deploy to GitHub Pages
       if: success()
-      uses: peaceiris/actions-gh-pages@v3
+      uses: Cecilapp/GitHub-Pages-deploy@3.2.2
       with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./dist
-        publish_branch: gh-pages
-        commit_message: 'Deploy to GitHub Pages: ${{ github.sha }}'
+        # A verified email.
+        email: 1205039851@qq.com
+        # Where static files are.
+        build_dir: ./dist # optional, default is _site
+        # Which branch to push files.
+        branch: gh-pages # optional
+        # The custom domain name.
+        # cname: # optional
+        # `yes` in case of a Jekyll site.
+        # jekyll: # optional, default is no
+        # A custom commit message.
+        # commit_message: # optional
