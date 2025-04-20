@@ -38,6 +38,12 @@ jobs:
       working-directory: .
       run: pnpm run build
 
+    - name: Clean up symlinks and hard links
+      run: |
+        # 删除所有符号链接（保留源文件）
+        find ./dist -type l -exec rm {} \;
+        # （可选）如果需要保留源文件，仅删除链接文件，不影响实际内容
+
     - name: Upload deployment artifact  # 必需步骤：上传工件到 GitHub
       uses: actions/upload-artifact@v4
       with:
