@@ -36,3 +36,8 @@ jobs:
     - name: Build project
       working-directory: .
       run: pnpm run build
+    - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./dist # 假设打包后的文件在 dist 目录，根据实际情况修改  
