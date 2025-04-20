@@ -20,24 +20,16 @@ jobs:
     - uses: actions/checkout@v3
     - uses: pnpm/action-setup@v4.1.0
       with:
-        # Version of pnpm to install
-        version: 10.6.1 # optional
-        # Where to store pnpm files
-        # dest: # optional, default is ~/setup-pnpm
-        # If specified, run `pnpm install`
-        # run_install: # optional, default is null
-        # File path to the package.json to read "packageManager" configuration
-        # package_json_file: # optional, default is package.json
-        # When set to true, @pnpm/exe, which is a Node.js bundled package, will be installed, enabling using pnpm without Node.js.
-        # standalone: # optional, default is false
-    - name: Install dependencies
-      working-directory: .
-      run: pnpm install
+        version: 10.6.1
+        run_install: true
+        cache: true # 启用缓存
     - name: Build project
       working-directory: .
       run: pnpm run build
     - name: Deploy to GitHub Pages
+      if: success() # 仅在前一个步骤成功时执行
       uses: peaceiris/actions-gh-pages@v3
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./dist # 假设打包后的文件在 dist 目录，根据实际情况修改  
+        publish_dir: ./dist
+        publish_branch: gh-pages # 明确指定发布分支
