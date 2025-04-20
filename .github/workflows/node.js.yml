@@ -38,7 +38,7 @@ jobs:
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4  # 使用 peaceiris 方案部署
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}  # GitHub 自动生成的令牌，无需手动创建
+          github_token: ${{ secrets.ACCESS_TOKEN }}  # GitHub 自动生成的令牌，无需手动创建
           publish_dir: ./dist                       # 构建输出目录（根据项目实际输出修改，如 build/out 等）
           publish_branch: gh-pages                  # GitHub Pages 部署目标分支（默认值，显式声明更清晰）
           # user_name: "github-actions[bot]"           # 提交时的用户名（默认值，可选）
