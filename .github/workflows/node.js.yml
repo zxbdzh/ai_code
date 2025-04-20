@@ -1,54 +1,69 @@
-name: Node.js CI & GitHub Pages Deploy
+# .github/workflows/auto-deploy.yml
+
+name: auto deploy 🚀
 
 on:
+  # 监听push操作
   push:
-    branches: ["main"]
+    branches:
+      - main # 这里只配置了main分支，所以只有推送main分支才会触发以下任务
   pull_request:
-    branches: ["main"]
+
+  # 这个选项可以使你手动在 Action tab 页面触发工作流
+  # workflow_dispatch:
+
+permissions:
+  # 允许对仓库的内容进行写操作。包括创建、修改和删除文件、目录以及提交更改等
+  # 这里只配置了push，所以只有推送main分支才会触发以下任务 
+  contents: write
+  # 允许管理 GitHub Pages 服务并对其进行写操作
+  pages: write
+
 
 jobs:
-  deploy:
+  # 任务ID
+  build-and-deploy:
+    # 运行环境
+    # runs-on: macos-latest
+    # runs-on: windows-latest
     runs-on: ubuntu-latest
-    permissions:
-      contents: write  # 必需：推送至 gh-pages 分支的权限
-    strategy:
-      matrix:
-        node-version: ["22.x"]  # 使用 Node.js 22.x 稳定版
-
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}
+    
+    # 步骤
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4  # 检出代码（最新版动作）
+      # 官方action，将代码拉取到虚拟机
+      - name: Checkout
+        uses: actions/checkout@v3
 
-      - name: Set up Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v4  # 最新版 Node.js 动作
+      # 建一个名为setup-node的步骤（安装指定版本的Node.js）
+      - name: setup-node 
+        # 使用setup-node@v3这个action
+        uses: actions/setup-node@v3
+        # 指定某个action 可能需要输入的参数
         with:
-          node-version: ${{ matrix.node-version }}
-          cache: "pnpm"  # 启用 pnpm 依赖缓存
+          node-version: '22.x'
 
-      - name: Set up pnpm (关键修复：使用有效 pnpm 发行版版本)
-        uses: pnpm/action-setup@v4.1.0  # 动作版本与 pnpm 版本分离
-        with:
-          version: "8.6.2"  # 有效 pnpm 发行版版本（非动作内部版本号）
-          run_install: true  # 自动安装 pnpm 到系统 PATH（默认值，显式声明更清晰）
+      # 安装 pnpm
+      - name: Install pnpm
+        run: npm install pnpm -g
 
-      - name: Verify pnpm installation (调试步骤，必加！)
-        run: |
-          echo "=== pnpm 可执行文件路径 ==="
-          which pnpm  # 输出 pnpm 安装路径（应包含 /home/runner/.local/share/pnpm）
-          echo "=== pnpm 版本 ==="
-          pnpm --version  # 应输出 8.6.2 或其他有效版本号
-          echo "=== 环境变量 PATH ==="
-          echo $PATH  # 检查是否包含 pnpm 安装路径
-
+      # 安装依赖  
       - name: Install dependencies
-        run: pnpm install  # 使用 pnpm 安装项目依赖
+        run: pnpm i
+      # 打包
+      - name: Build application 🔧
+        run: pnpm run build:prod
 
-      - name: Build project
-        run: pnpm run build  # 执行构建（确保输出目录正确）
-
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v4  # 最新版部署动作
+      # 部署 https://github.com/JamesIves/github-pages-deploy-action
+      - name: Deploy 🚀
+        uses: JamesIves/github-pages-deploy-action@v4
+        if: github.ref == 'refs/heads/main'
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./dist  # 替换为实际构建输出目录
-          publish_branch: gh-pages    
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: gh-pages  # default: gh-pages
+          folder: dist
+          clean: true # Automatically remove deleted files from the deploy branch
+          # commit-message: ${{ github.event.head_commit.message }} # default: `Deploying to gh-pages from @ 3238feb 🚀`
+          # commit-message: "deploy: ${{ github.sha }} (${{ github.event.head_commit.message }}) 🚀 "
+
