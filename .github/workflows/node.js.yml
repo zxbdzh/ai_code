@@ -17,6 +17,7 @@ jobs:
         node-version: [18.x, 20.x, 22.x]
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
     steps:
+    - uses: actions/checkout@v3
     - uses: pnpm/action-setup@v4.1.0
       with:
         # Version of pnpm to install
@@ -30,10 +31,11 @@ jobs:
         # When set to true, @pnpm/exe, which is a Node.js bundled package, will be installed, enabling using pnpm without Node.js.
         # standalone: # optional, default is false
     - name: Install dependencies
+      working-directory: .
       run: pnpm install
     - name: Build project
+      working-directory: .
       run: pnpm run build --if-present
     - name: Run tests
+      working-directory: .
       run: pnpm test
-        
-    
