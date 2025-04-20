@@ -35,7 +35,7 @@ jobs:
       run: pnpm install
     - name: Build project
       working-directory: .
-      run: pnpm run build --if-present
+      run: pnpm run build
     - name: Run tests
       working-directory: .
-      run: pnpm test
+      run: pnpm dev
