@@ -27,7 +27,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-          cache: "pnpm"   # 缓存 pnpm 依赖，减少重复安装时间
 
       - name: Install dependencies
         run: pnpm install  # 使用 pnpm 安装项目依赖
