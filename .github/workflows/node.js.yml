@@ -36,6 +36,3 @@ jobs:
     - name: Build project
       working-directory: .
       run: pnpm run build
-    - name: Run tests
-      working-directory: .
-      run: pnpm dev
