@@ -1,5 +1,7 @@
 # AI代码生成器
 
+[English](README.en.md)
+
 一个基于Vue 3 + TypeScript + Vite的智能代码生成工具，专门用于生成HTML5游戏。支持多种AI模型，提供丰富的游戏预设和自定义配置选项。
 
 ## ✨ 特性
